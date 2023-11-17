@@ -2,51 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leaf Classification</title>
+    <title>Model Interaction</title>
 </head>
 <body>
-    <h1>Leaf Classification</h1>
-    <input type="file" accept="image/*" style="width: 100px;height: 100px;" onchange="previewImage(this)">
-    <img id="preview" src="" alt="Preview">
-    <button onclick="predictImage()">Predict</button>
-    <p id="predictionResult"></p>
+    <h1>Model Interaction</h1>
+    <div>
+        <label for="inputData">Input Data:</label>
+        <input type="text" id="inputData" />
+        <button onclick="predict()">Predict</button>
+        <p id="result"></p>
+    </div>
 
     <script>
-        function previewImage(input) {
-            var preview = document.getElementById('preview');
-            var file = input.files[0];
-            var reader = new FileReader();
+        function predict() {
+            // Get input data from the form
+            var inputData = document.getElementById('inputData').value;
 
-            reader.onloadend = function () {
-                preview.src = reader.result;
-            }
-
-            if (file) {
-                reader.readAsDataURL(file);
-            } else {
-                preview.src = "";
-            }
-        }
-
-        function predictImage() {
-            var preview = document.getElementById('preview');
-            var predictionResult = document.getElementById('predictionResult');
-
-            // Use an API endpoint to handle the prediction
-            fetch('http://127.0.0.1:5000/predict', {  // Update the URL if needed
+            // Make a POST request to the Flask server
+            fetch('/predict', {
                 method: 'POST',
-                body: JSON.stringify({ image: preview.src }),
                 headers: {
-                    'Content-Type': 'application/json'
-                }
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ input: inputData }),
             })
             .then(response => response.json())
             .then(data => {
-                predictionResult.innerText = 'Prediction: ' + data.prediction;
-            })
-            .catch(error => {
-                console.error('Error:', error);
+                // Display predictions
+                document.getElementById('result').innerText = 'Predictions: ' + JSON.stringify(data.predictions);
             });
         }
     </script>

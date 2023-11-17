@@ -1,37 +1,29 @@
-
-from flask import Flask, request, jsonify, render_template
-import tensorflow as tf
-
-from tensorflow.keras.preprocessing import image
+from flask import Flask, jsonify, request, render_template
+from tensorflow.keras.models import load_model
 import numpy as np
 
 app = Flask(__name__)
 
-# Load the trained model
-model = tf.keras.models.load_model("C:\\Users\\Akash-Avinash\\Desktop\\LeafDetector.h5")
-
+# Load your .h5 model
+model = load_model('"C:\Users\Akash-Avinash\Desktop\LeafDetector.h5"')
 
 @app.route('/')
-def index():
+def home():
     return render_template('index.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():
+    # Assume your model expects input data in the form of a JSON object
     data = request.get_json()
-    image_data = data.get('image', '')
 
-    # Preprocess the image
-    img = image.load_img(image_data, target_size=(128, 128))
-    img_array = image.img_to_array(img)
-    img_array = np.expand_dims(img_array, axis=0) / 255.0
+    # Perform any necessary preprocessing on the data
+    # ...
 
-    # Make prediction
-    predictions = model.predict(img_array)
+    # Make predictions using your model
+    predictions = model.predict(np.array(data['input']))
 
-    # Interpret the prediction
-    prediction_result = 'Diseased Leaf' if predictions[0, 0] > 0.5 else 'Healthy Leaf'
-
-    return jsonify({'prediction': prediction_result})
+    # Return the predictions as JSON
+    return jsonify({'predictions': predictions.tolist()})
 
 if __name__ == '__main__':
     app.run(debug=True)
